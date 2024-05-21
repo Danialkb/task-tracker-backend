@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
 
 from database import Base
@@ -11,6 +11,9 @@ class AbcRepository(ABC):
     model: Base = None
     action_schema: dict[str, BaseModel] = {}
     session: Session = None
+
+    def __init__(self, session=None):
+        self.session = session
 
     @abstractmethod
     def list(self):
@@ -28,6 +31,10 @@ class AbcRepository(ABC):
     def delete(self, id: int):
         raise NotImplementedError()
 
+    @abstractmethod
+    def update(self, id: int, body: BaseModel):
+        raise NotImplementedError()
+
     def get_schema(self, action_key: str):
         schema = self.action_schema.get(action_key)
         if not schema:
@@ -37,8 +44,9 @@ class AbcRepository(ABC):
 
 class BaseRepository(AbcRepository):
 
-    def list(self):
-        instances = self.session.execute(select(self.model)).scalars().all()
+    def list(self, filter_condition=None):
+        query = select(self.model)
+        instances = self.session.execute(query).scalars().all()
         schema: BaseModel = self.get_schema("list")
         return [schema.model_validate(instance) for instance in instances]
 
@@ -54,6 +62,17 @@ class BaseRepository(AbcRepository):
 
         schema: BaseModel = self.get_schema("create")
         return schema.model_validate(instance)
+
+    def update(self, instance_id: int, body: BaseModel):
+        print(instance_id)
+        update_query = (
+            update(self.model)
+            .where(self.model.id == instance_id)
+            .values(**body.model_dump())
+        )
+        self.session.execute(update_query)
+        self.session.commit()
+        return body
 
     def delete(self, id: int):
         self.session.execute(delete(self.model).where(self.model.id == id))

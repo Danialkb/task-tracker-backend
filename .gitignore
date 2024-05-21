@@ -1,2 +1,9 @@
 src/.env
-.venv
+src/.env.dev
+src/venv
+.idea/
+*__pycache__
+__pycache__
+*.pyc
+*.pyo
+.DS_Store
