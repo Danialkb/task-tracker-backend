@@ -10,6 +10,8 @@ from alembic import context
 sys.path.append(os.path.join(sys.path[0], 'src'))
 from config import DB_HOST, DB_USER, DB_PORT, DB_NAME, DB_PASSWORD
 from folders.models import *
+from tasks.models import *
+from task_status.models import *
 
 
 # this is the Alembic Config object, which provides

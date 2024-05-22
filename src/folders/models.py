@@ -14,4 +14,4 @@ class Folder(Base):
     depth: Mapped[int] = mapped_column(default=1)
 
     # relationships
-    # tasks = relationship("Task", back_populates="folder")
+    tasks = relationship("Task", back_populates="folder")
