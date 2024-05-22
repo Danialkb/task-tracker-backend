@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".env.dev")
 
 # DATABASE
 DB_NAME = os.getenv('DB_NAME')
@@ -11,7 +11,6 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 
-print(f"{DB_HOST=}")
 
 # # JWT
 # SECRET_KEY = os.environ.get('SECRET_KEY')
