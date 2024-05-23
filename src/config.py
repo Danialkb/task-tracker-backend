@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".env.dev")
 
 # DATABASE
 DB_NAME = os.getenv('DB_NAME')

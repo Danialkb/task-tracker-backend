@@ -19,5 +19,6 @@ class UpdateFolder(BaseSchema):
 
 
 class Folder(BaseFolder):
+    path: str
     depth: int
     is_leaf: bool

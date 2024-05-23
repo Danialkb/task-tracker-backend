@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from folders.routers import router as folder_router
 from task_status.routers import router as task_status_router
+from tasks.routers import router as task_router
 
 app = FastAPI()
 
@@ -26,3 +27,4 @@ def read_root():
 
 app.include_router(folder_router)
 app.include_router(task_status_router)
+app.include_router(task_router)

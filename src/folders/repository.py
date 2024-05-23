@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import update, select, delete
 
@@ -17,12 +17,12 @@ class FolderRepo(BaseRepository):
         "update": schemas.UpdateFolder,
     }
 
-    def list(self, filter_condition=None):
+    def list(self, filter_condition=None) -> List[schemas.Folder]:
         query = select(self.model).where(Folder.depth == 1)
         instances = self.session.execute(query).scalars().all()
         return [schemas.Folder.model_validate(instance) for instance in instances]
 
-    def list_folder_children(self, parent_folder_id: int):
+    def list_folder_children(self, parent_folder_id: int) -> List[Folder]:
         parent_folder = self.session.get(self.model, parent_folder_id)
         query = (
             select(self.model)
@@ -40,13 +40,11 @@ class FolderRepo(BaseRepository):
             .where(Folder.id == instance_id)
             .values(**body.model_dump())
         )
-        self.session.execute(update_query)
+        folder = self.session.execute(update_query)
         self.session.commit()
         related_folders = self.session.execute(select(Folder).where(Folder.path.like(f"{old_path}%"))).scalars().all()
-        print(old_path, related_folders)
         for folder in related_folders:
             folder_names = folder.path[1:].split("/")
-            print(folder_names)
             try:
                 folder_names[folder_names.index(old_name)] = body.name
                 folder.path = f"/{'/'.join(folder_names)}"
@@ -55,7 +53,7 @@ class FolderRepo(BaseRepository):
 
         self.session.bulk_save_objects(related_folders)
         self.session.commit()
-        return body
+        return schemas.Folder.model_validate(folder)
 
     def create(self, folder: schemas.CreateFolder):
         if folder.parent_path:
@@ -69,6 +67,8 @@ class FolderRepo(BaseRepository):
             folder_instance = Folder(name=folder.name, path=f"/{folder.name}", is_leaf=True)
 
         self.session.add(folder_instance)
+        self.session.flush()
+        self.session.refresh(folder_instance)
         self.session.commit()
 
         if folder.parent_path:
@@ -79,7 +79,7 @@ class FolderRepo(BaseRepository):
             )
             self.session.execute(update_query)
             self.session.commit()
-        return folder
+        return schemas.Folder.model_validate(folder_instance)
 
     def delete(self, id: int):
         instance = self._get_object(id)
@@ -104,7 +104,6 @@ class FolderRepo(BaseRepository):
             )
             self.session.execute(update_query)
             self.session.commit()
-
 
     def _get_object(self, instance_id: int) -> Optional[Folder]:
         return self.session.get(Folder, instance_id)
