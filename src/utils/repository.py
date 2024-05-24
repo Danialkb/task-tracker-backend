@@ -58,13 +58,14 @@ class BaseRepository(AbcRepository):
     def create(self, body: BaseModel):
         instance = self.model(**body.model_dump())
         self.session.add(instance)
+        self.session.flush()
+        self.session.refresh(instance)
         self.session.commit()
 
-        schema: BaseModel = self.get_schema("create")
+        schema: BaseModel = self.get_schema("create_response")
         return schema.model_validate(instance)
 
     def update(self, instance_id: int, body: BaseModel):
-        print(instance_id)
         update_query = (
             update(self.model)
             .where(self.model.id == instance_id)
@@ -72,9 +73,10 @@ class BaseRepository(AbcRepository):
         )
         self.session.execute(update_query)
         self.session.commit()
-        return body
+        updated_instance = self.session.get(self.model, instance_id)
+        return self.get_schema("update_response").model_validate(updated_instance)
 
     def delete(self, id: int):
         self.session.execute(delete(self.model).where(self.model.id == id))
         self.session.commit()
-        return """Deleted successfully"""
+        return id

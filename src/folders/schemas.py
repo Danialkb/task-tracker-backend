@@ -14,7 +14,6 @@ class CreateFolder(BaseSchema):
 
 
 class UpdateFolder(BaseSchema):
-    id: int
     name: str
 
 

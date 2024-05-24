@@ -12,9 +12,7 @@ from folders import schemas
 class FolderRepo(BaseRepository):
     model = Folder
     action_schema = {
-        "list": schemas.Folder,
         "retrieve": schemas.Folder,
-        "update": schemas.UpdateFolder,
     }
 
     def list(self, filter_condition=None) -> List[schemas.Folder]:
@@ -31,7 +29,7 @@ class FolderRepo(BaseRepository):
         folders = self.session.execute(query).scalars().all()
         return [schemas.Folder.model_validate(folder) for folder in folders]
 
-    def update(self, instance_id: int, body: UpdateFolder):
+    def update(self, instance_id: int, body: UpdateFolder) -> schemas.Folder:
         instance = self._get_object(instance_id)
         old_path = instance.path
         old_name = instance.name
@@ -55,7 +53,7 @@ class FolderRepo(BaseRepository):
         self.session.commit()
         return schemas.Folder.model_validate(folder)
 
-    def create(self, folder: schemas.CreateFolder):
+    def create(self, folder: schemas.CreateFolder) -> schemas.Folder:
         if folder.parent_path:
             folder_instance = Folder(
                 name=folder.name,
@@ -81,7 +79,7 @@ class FolderRepo(BaseRepository):
             self.session.commit()
         return schemas.Folder.model_validate(folder_instance)
 
-    def delete(self, id: int):
+    def delete(self, id: int) -> int:
         instance = self._get_object(id)
         if instance.is_leaf:
             self._update_leaf(instance)

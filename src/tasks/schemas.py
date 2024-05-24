@@ -22,5 +22,6 @@ class UpdateTask(BaseTask):
 
 
 class Task(BaseTask):
+    id: int
     folder: Folder
     status: TaskStatus
