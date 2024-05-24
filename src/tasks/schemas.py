@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from task_status.schemas import TaskStatus
 
 from folders.schemas import Folder
@@ -19,6 +22,16 @@ class UpdateTask(BaseTask):
     description: str
     folder_id: int
     status_id: int
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+
+class UpdateTaskStartedDate(BaseSchema):
+    started_at: datetime = datetime.now()
+
+
+class UpdateTaskFinishedDate(BaseSchema):
+    finished_at: datetime = datetime.now()
 
 
 class Task(BaseTask):

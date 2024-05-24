@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from fastapi_filter.contrib.sqlalchemy import Filter
 from pydantic import BaseModel
 from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ class AbcRepository(ABC):
         self.session = session
 
     @abstractmethod
-    def list(self):
+    def list(self, filter_class:Filter = None):
         raise NotImplementedError()
 
     @abstractmethod
@@ -44,8 +45,10 @@ class AbcRepository(ABC):
 
 class BaseRepository(AbcRepository):
 
-    def list(self, filter_condition=None):
+    def list(self, filter_class: Filter = None):
         query = select(self.model)
+        if filter_class:
+            query = filter_class.filter(query)
         instances = self.session.execute(query).scalars().all()
         schema: BaseModel = self.get_schema("list")
         return [schema.model_validate(instance) for instance in instances]

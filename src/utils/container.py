@@ -2,7 +2,7 @@ import punq
 
 from folders.dependencies import CreateFolderDep, UpdateFolderDep
 from task_status.dependencies import CreateTaskStatusDep, UpdateTaskStatusDep
-from tasks.dependencies import UpdateTaskDep, CreateTaskDep
+from tasks.dependencies import UpdateTaskDep, CreateTaskDep, TaskFilterListDep
 from utils.dependencies import ListDependency, RetrieveDependency, DeleteDependency
 from utils.repository import AbcRepository
 
@@ -27,5 +27,6 @@ def get_container(repository: type[AbcRepository]) -> punq.Container:
     # register task deps
     container.register(CreateTaskDep)
     container.register(UpdateTaskDep)
+    container.register(TaskFilterListDep)
 
     return container

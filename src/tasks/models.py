@@ -19,7 +19,7 @@ class Task(Base):
 
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     started_at: Mapped[datetime] = mapped_column(nullable=True)
-    finished_at: Mapped[datetime] = mapped_column(nullable=True)
+    completed_at: Mapped[datetime] = mapped_column(nullable=True)
 
     # relationships
     folder = relationship("Folder", back_populates="tasks")
